@@ -83,14 +83,8 @@ public class MainActivity extends ActionBarActivity {
         locationfind.setPowerRequirement(Criteria.POWER_MEDIUM);
         locationfind.setSpeedRequired(false);
     }
-    private void setCoarseCriteria(){
-        locationfind.setAccuracy(Criteria.ACCURACY_COARSE);
-        locationfind.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
-    }
     //Is a faster way to find a location, but location might not exist to begin with
     private void refresh(){
-       setCoarseCriteria();
-       provider = locationManager.getBestProvider(locationfind,true);
        Location location = locationManager.getLastKnownLocation(provider);
        setLocation(location);
     }
