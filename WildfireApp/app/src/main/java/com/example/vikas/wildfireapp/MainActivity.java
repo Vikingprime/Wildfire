@@ -13,7 +13,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-//
+
+import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
     double latitude;
@@ -23,6 +24,7 @@ public class MainActivity extends ActionBarActivity {
     Criteria locationfind=new Criteria();
     LocationManager locationManager;
     Looper mLooper = Looper.myLooper();
+    List<String> matchingProviders = locationManager.getAllProviders();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,23 +65,39 @@ public class MainActivity extends ActionBarActivity {
             Log.d(TAG,"Provider Disabled");
         }
     };
+    protected void onResume(){
+        super.onResume();
+        refresh();
+    }
+    //Has higher latency
+    //Calls onLocationChanged method in listen (LocationListener)
     private void requestUpdate(){
         locationManager.requestSingleUpdate(provider,listen,mLooper);
     }
+    //sets Criteria to find best provider
     private void setCriteria(){
         locationfind.setAccuracy(Criteria.ACCURACY_FINE);
         locationfind.setAltitudeRequired(false);
         locationfind.setBearingRequired(false);
-        locationfind.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+        locationfind.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
         locationfind.setPowerRequirement(Criteria.POWER_MEDIUM);
         locationfind.setSpeedRequired(false);
     }
-    private void refresh(){
-        Location location = locationManager.getLastKnownLocation(provider);
-       latitude =  location.getLatitude();
-       longitude = location.getLongitude();
+    private void setCoarseCriteria(){
+        locationfind.setAccuracy(Criteria.ACCURACY_COARSE);
+        locationfind.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
     }
-
+    //Is a faster way to find a location, but location might not exist to begin with
+    private void refresh(){
+       setCoarseCriteria();
+       provider = locationManager.getBestProvider(locationfind,true);
+       Location location = locationManager.getLastKnownLocation(provider);
+       setLocation(location);
+    }
+    private void setLocation(Location location){
+        latitude =  location.getLatitude();
+        longitude = location.getLongitude();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
